@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
+from django.db.utils import IntegrityError
 from .models import Rental, Reservation
 
 
@@ -13,7 +14,7 @@ class RentalModelTest(TestCase):
         self.assertEqual(str(Rental._meta.verbose_name_plural), 'rentals')
 
 
-class ReservationModelTest(TestCase):
+class ReservationModelTest(TransactionTestCase):
 
     def test_string_representation(self):
         rental = Rental(name='A nice place')
@@ -52,7 +53,7 @@ class ReservationModelTest(TestCase):
 
         reservation.check_in = '2021-01-03'
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(IntegrityError):
             reservation.save()
 
         with self.assertRaises(ValidationError):
