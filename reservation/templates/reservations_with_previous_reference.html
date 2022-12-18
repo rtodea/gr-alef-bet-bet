@@ -1,40 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Reservations</title>
-  </head>
-  <style>
-table, th, td {
-  border:1px solid black;
-}
-</style>
-  <body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style> @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap'); </style>
+    <style>
+        .styled-table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: Roboto, sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
 
-	<table>
+        .styled-table thead tr {
+            background-color: #009879;
+            color: #ffffff;
+            text-align: left;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .styled-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .styled-table tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+
+        .styled-table tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
+    </style>
+</head>
+<body>
+
+<table class="styled-table">
+    <thead>
+    <tr>
+        <td>Rental Name</td>
+        <td>ID</td>
+        <td>Checkin</td>
+        <td>Checkout</td>
+        <td>Previous Reservation ID</td>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for reservation in reservations %}
         <tr>
-            <td>Rental Name</td>
-            <td>ID</td>
-            <td>Checkin</td>
-            <td>Checkout</td>
-            <td>Previous Reservation ID</td>
+            <td> {{ reservation.0 }} </td>
+            <td> RES-{{ reservation.1 }} ID</td>
+            <td> {{ reservation.2 }} </td>
+            <td> {{ reservation.3 }} </td>
+            {% if reservation.4 %}
+                <td> RES-{{ reservation.4 }} ID</td>
+            {% else %}
+                <td> -</td>
+            {% endif %}
         </tr>
+    {% endfor %}
+    </tbody>
 
-        {% for reservation in reservations %}
-            <tr>
-                <td> {{ reservation.0 }} </td>
-                <td> RES-{{ reservation.1 }} ID </td>
-                <td> {{ reservation.2 }} </td>
-                <td> {{ reservation.3 }} </td>
-                {% if reservation.4 %}
-                <td> RES-{{ reservation.4}} ID </td>
-                {% else %}
-                <td> - </td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-    </table>
-  </body>
+</table>
+</body>
 </html>
