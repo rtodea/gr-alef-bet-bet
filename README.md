@@ -137,3 +137,9 @@ dev-server    | Quit the server with CONTROL-C.
 ```
 
 Visit `http://localhost:8000/` to see the `reservations` for the sample case.
+
+## 🌎 Deployment
+
+We deployed the simple view to `repl.it`:
+
+> https://gr-alef-bet-bet.roberttodea.repl.co/
