@@ -78,15 +78,16 @@ The problem is to find the previous reservation for each reservation.
 This can be done at multiple levels:
 
 1. Database level, by persisting the previous reservation ID into the
-   database. --- this would not work when reservation changes the order gets changed
+   database. --- this would not work when reservation updates check-in/check-out values
 2. Model level, (via some derived property) by querying the database 
    for each reservation. --- this would be slow, but would be up-to-date
-3. Selector level, by doing some custom queries
+3. Serializer level, same as model level
+4. Selector level, by doing custom SQL queries
       1. inner join
       2. sub-queries
       3. window functions `LAG`
       4. CTE (Common Table Expressions) with recursion
-4. View level, by fetching all reservations and then calculating the
+5. View level, by fetching all reservations and then calculating the
    previous reservation for each reservation by looking in the in memory list. 
    --- this would do everything in memory, would be slow for large datasets, 
    and would not work for paginated views
