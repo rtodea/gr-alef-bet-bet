@@ -1,20 +1,31 @@
-from typing import Optional
+from django.db.models import Window, F
+from django.db.models.functions import Lag
+
 from reservation.models import Reservation
-from dataclasses import dataclass
-
-
-@dataclass
-class ReservationWithPrev:
-    rental_name: str
-    id: str
-    check_in: str
-    check_out: str
-    prev_reservation_id: Optional[int]
 
 
 def select_all_reservations_with_previous_reservation():
-    return [ReservationWithPrev(r.rental.name,
-                                r.id,
-                                r.check_in,
-                                r.check_out,
-                                None) for r in Reservation.objects.all()]
+    # use Lag window function to get previous reservation id
+    # https://docs.djangoproject.com/en/4.1/ref/models/database-functions/#lag
+    #
+    # Supported by Sqlite and Postgres:
+    #
+    # https://www.sqlitetutorial.net/sqlite-window-functions/sqlite-lag/
+    # https://www.postgresql.org/docs/9.1/tutorial-window.html
+
+    return Reservation.objects.annotate(
+        prev_reservation_id=Window(
+            expression=Lag('id'),
+            order_by=F('rental').asc(),
+            partition_by=F('rental'),
+        )
+    ).values_list(
+        'rental__name',
+        'id',
+        'check_in',
+        'check_out',
+        'prev_reservation_id',
+    ).order_by(
+        'rental__name',
+        'check_in',
+    ).all()

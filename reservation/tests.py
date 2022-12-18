@@ -121,11 +121,12 @@ class SelectingReservationsWithPreviousReservationRefTest(TestCase):
                 return '-'
             return f'Res-{reservation_id} ID'
 
-        rows = [(r.rental_name,
-                 format_reservation_id(r.id),
-                 r.check_in,
-                 r.check_out,
-                 format_reservation_id(getattr(r, 'previous_reservation_id', None))) for r in reservations]
+        rows = [(rental_name,
+                 format_reservation_id(reservation_id),
+                 check_in,
+                 check_out,
+                 format_reservation_id(previous_reservation_id))
+                for rental_name, reservation_id, check_in, check_out, previous_reservation_id in reservations]
         return tabulate(rows, headers=headers, tablefmt='psql')
 
     def test_select_all_reservations_with_previous_reservation(self):
@@ -146,15 +147,16 @@ class SelectingReservationsWithPreviousReservationRefTest(TestCase):
         reservation5.save()
 
         reservations = select_all_reservations_with_previous_reservation()
+        reservations_as_pretty_table = self.export_reservations_as_pretty_table(reservations)
 
         self.assertEqual('''
 +---------------+----------+------------+------------+---------------------------+
 | Rental_name   | ID       | Checkin    | Checkout   | Previous reservation ID   |
 |---------------+----------+------------+------------+---------------------------|
 | Rental-1      | Res-1 ID | 2021-01-01 | 2021-01-13 | -                         |
-| Rental-1      | Res-2 ID | 2021-01-20 | 2021-02-10 | -                         |
-| Rental-1      | Res-3 ID | 2021-02-20 | 2021-03-10 | -                         |
+| Rental-1      | Res-2 ID | 2021-01-20 | 2021-02-10 | Res-1 ID                  |
+| Rental-1      | Res-3 ID | 2021-02-20 | 2021-03-10 | Res-2 ID                  |
 | Rental-2      | Res-4 ID | 2021-01-01 | 2021-01-13 | -                         |
-| Rental-2      | Res-5 ID | 2021-01-20 | 2021-02-10 | -                         |
+| Rental-2      | Res-5 ID | 2021-01-20 | 2021-02-10 | Res-4 ID                  |
 +---------------+----------+------------+------------+---------------------------+
-''', f'\n{self.export_reservations_as_pretty_table(reservations)}\n')
+''', f'\n{reservations_as_pretty_table}\n')
