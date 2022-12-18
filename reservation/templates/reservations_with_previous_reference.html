@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Reservations</title>
+  </head>
+  <style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+  <body>
+
+	<table>
+        <tr>
+            <td>Rental Name</td>
+            <td>ID</td>
+            <td>Checkin</td>
+            <td>Checkout</td>
+            <td>Previous Reservation ID</td>
+        </tr>
+
+        {% for reservation in reservations %}
+            <tr>
+                <td> {{ reservation.0 }} </td>
+                <td> RES-{{ reservation.1 }} ID </td>
+                <td> {{ reservation.2 }} </td>
+                <td> {{ reservation.3 }} </td>
+                {% if reservation.4 %}
+                <td> RES-{{ reservation.4}} ID </td>
+                {% else %}
+                <td> - </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+  </body>
+</html>

@@ -135,3 +135,5 @@ dev-test      | Creating test database for alias 'default'...
 dev-server    | Starting development server at http://0.0.0.0:8000/
 dev-server    | Quit the server with CONTROL-C.
 ```
+
+Visit `http://localhost:8000` to see the `reservations` for the sample case.
