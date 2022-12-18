@@ -4,7 +4,7 @@ services:
   dev-server:
     build: .
     container_name: dev-server
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py migrate && python manage.py loaddata fixture.json && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/usr/src/app/
     ports:

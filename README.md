@@ -99,7 +99,9 @@ because it is efficient, doing everything in one query and has support in all ma
 3. https://www.sqlservertutorial.net/sql-server-window-functions/sql-server-lag-function/
 
 We need to make sure the ordering of the reservations is correct, and we are 
-looking into the check-in/check-out date, not by reservation creation id.
+looking into the check-in / check-out date, not by reservation creation id.
+We made sure overlapping reservations are not possible in our system if we validate the reservations
+before persisting them --- see [`reservation.models.Reservation::_validate_no_overlapping_reservations_within_same_rental`](./reservation/models.py#L27).
 
 Relevant test cases[`reservation.tests.SelectingReservationsWithPreviousReservationRefTest`](./reservation/tests.py#L114):
 
