@@ -72,6 +72,40 @@ rental.
 |-----------|--------|----------|----------|------------------------|
 ```
 
+### Solution Overview
+
+The problem is to find the previous reservation for each reservation.
+This can be done at multiple levels:
+
+1. Database level, by persisting the previous reservation ID into the
+   database. --- this would not work when reservation changes the order gets changed
+2. Model level, (via some derived property) by querying the database 
+   for each reservation. --- this would be slow, but would be up-to-date
+3. Selector level, by doing some custom queries
+      1. inner join
+      2. sub-queries
+      3. window functions `LAG`
+      4. CTE (Common Table Expressions) with recursion
+4. View level, by fetching all reservations and then calculating the
+   previous reservation for each reservation by looking in the in memory list. 
+   --- this would do everything in memory, would be slow for large datasets, 
+   and would not work for paginated views
+
+We opted for [`LAG` window function](https://docs.djangoproject.com/en/4.1/ref/models/database-functions/#lag),
+because it is efficient, doing everything in one query and has support in all major databases:
+
+1. https://www.sqlitetutorial.net/sqlite-window-functions/sqlite-lag/
+2. https://www.postgresql.org/docs/9.1/tutorial-window.html
+3. https://www.sqlservertutorial.net/sql-server-window-functions/sql-server-lag-function/
+
+We need to make sure the ordering of the reservations is correct, and we are 
+looking into the check-in/check-out date, not by reservation creation id.
+
+Relevant test cases[`reservation.tests.SelectingReservationsWithPreviousReservationRefTest`](./reservation/tests.py#L114):
+
+1. [`test_select_all_reservations_with_previous_reservation`](./reservation/tests.py#L132)
+2. [`test_select_all_reservations_with_previous_reservation_for_same_rental_when_out_of_order`](./reservation/tests.py#L159)
+
 
 ## 🚀 Quick Installation
 

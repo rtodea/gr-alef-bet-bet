@@ -130,21 +130,16 @@ class SelectingReservationsWithPreviousReservationRefTest(TestCase):
         return tabulate(rows, headers=headers, tablefmt='psql')
 
     def test_select_all_reservations_with_previous_reservation(self):
-        rental1 = Rental(name='Rental-1')
-        rental1.save()
-        reservation1 = Reservation(rental=rental1, check_in='2021-01-01', check_out='2021-01-13')
-        reservation1.save()
-        reservation2 = Reservation(rental=rental1, check_in='2021-01-20', check_out='2021-02-10')
-        reservation2.save()
-        reservation3 = Reservation(rental=rental1, check_in='2021-02-20', check_out='2021-03-10')
-        reservation3.save()
+        rental1 = Rental.objects.create(name='Rental-1')
+        Reservation.objects.bulk_create([
+            Reservation(rental=rental1, check_in='2021-01-01', check_out='2021-01-13'),
+            Reservation(rental=rental1, check_in='2021-01-20', check_out='2021-02-10'),
+            Reservation(rental=rental1, check_in='2021-02-20', check_out='2021-03-10')])
 
-        rental2 = Rental(name='Rental-2')
-        rental2.save()
-        reservation4 = Reservation(rental=rental2, check_in='2021-01-01', check_out='2021-01-13')
-        reservation4.save()
-        reservation5 = Reservation(rental=rental2, check_in='2021-01-20', check_out='2021-02-10')
-        reservation5.save()
+        rental2 = Rental.objects.create(name='Rental-2')
+        Reservation.objects.bulk_create([
+            Reservation(rental=rental2, check_in='2021-01-01', check_out='2021-01-13'),
+            Reservation(rental=rental2, check_in='2021-01-20', check_out='2021-02-10')])
 
         reservations = select_all_reservations_with_previous_reservation()
         reservations_as_pretty_table = self.export_reservations_as_pretty_table(reservations)
@@ -158,5 +153,28 @@ class SelectingReservationsWithPreviousReservationRefTest(TestCase):
 | Rental-1      | Res-3 ID | 2021-02-20 | 2021-03-10 | Res-2 ID                  |
 | Rental-2      | Res-4 ID | 2021-01-01 | 2021-01-13 | -                         |
 | Rental-2      | Res-5 ID | 2021-01-20 | 2021-02-10 | Res-4 ID                  |
++---------------+----------+------------+------------+---------------------------+
+''', f'\n{reservations_as_pretty_table}\n')
+
+    def test_select_all_reservations_with_previous_reservation_for_same_rental_when_out_of_order(self):
+        rental1 = Rental.objects.create(name='Rental-1')
+        Reservation.objects.bulk_create([
+            Reservation(rental=rental1, check_in='2021-01-05', check_out='2021-01-13'),
+            Reservation(rental=rental1, check_in='2021-01-20', check_out='2021-02-10'),
+            Reservation(rental=rental1, check_in='2021-02-20', check_out='2021-03-10'),
+            Reservation(rental=rental1, check_in='2021-01-13', check_out='2021-01-15'),
+            Reservation(rental=rental1, check_in='2021-01-01', check_out='2021-01-04')])
+
+        reservations = select_all_reservations_with_previous_reservation()
+        reservations_as_pretty_table = self.export_reservations_as_pretty_table(reservations)
+        self.assertEqual('''
++---------------+----------+------------+------------+---------------------------+
+| Rental_name   | ID       | Checkin    | Checkout   | Previous reservation ID   |
+|---------------+----------+------------+------------+---------------------------|
+| Rental-1      | Res-5 ID | 2021-01-01 | 2021-01-04 | -                         |
+| Rental-1      | Res-1 ID | 2021-01-05 | 2021-01-13 | Res-5 ID                  |
+| Rental-1      | Res-4 ID | 2021-01-13 | 2021-01-15 | Res-1 ID                  |
+| Rental-1      | Res-2 ID | 2021-01-20 | 2021-02-10 | Res-4 ID                  |
+| Rental-1      | Res-3 ID | 2021-02-20 | 2021-03-10 | Res-2 ID                  |
 +---------------+----------+------------+------------+---------------------------+
 ''', f'\n{reservations_as_pretty_table}\n')

@@ -10,13 +10,13 @@ def select_all_reservations_with_previous_reservation():
     #
     # Supported by Sqlite and Postgres:
     #
-    # https://www.sqlitetutorial.net/sqlite-window-functions/sqlite-lag/
-    # https://www.postgresql.org/docs/9.1/tutorial-window.html
+    # 1. https://www.sqlitetutorial.net/sqlite-window-functions/sqlite-lag/
+    # 2. https://www.postgresql.org/docs/9.1/tutorial-window.html
 
     return Reservation.objects.annotate(
         prev_reservation_id=Window(
             expression=Lag('id'),
-            order_by=F('rental').asc(),
+            order_by=F('check_in').asc(),
             partition_by=F('rental'),
         )
     ).values_list(
